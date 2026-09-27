@@ -220,7 +220,7 @@ export class Game {
 
     // ---- 世界滚动 ----
     this.dist += this.speed * dt;
-    this.road.update(this.dist, this.sky.night);
+    this.road.update(this.dist, this.sky.night, this.time);
 
     // ---- 灯光 / 天空（阴影相机跟主角走）----
     this.sky.update(this.dayT, this._rigPos);
