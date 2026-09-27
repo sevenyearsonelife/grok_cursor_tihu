@@ -80,15 +80,6 @@
       animation-duration: 68s;
     }
 
-    .wave {
-      animation: tide 5.5s ease-in-out infinite;
-    }
-
-    .wave.alt {
-      animation-duration: 7s;
-      animation-delay: -2s;
-    }
-
     .sun-glow {
       animation: glow 4.5s ease-in-out infinite;
     }
@@ -102,11 +93,6 @@
       to { transform: translateX(-960px); }
     }
 
-    @keyframes tide {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(-18px); }
-    }
-
     @keyframes glow {
       0%, 100% { opacity: 0.55; }
       50% { opacity: 0.85; }
@@ -118,7 +104,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .cloud, .wave, .sun-glow, .birds {
+      .cloud, .sun-glow, .birds {
         animation: none;
       }
     }
@@ -132,27 +118,34 @@
     </header>
 
     <div class="stage">
-      <svg viewBox="0 0 960 540" role="img" aria-label="A pelican with a pouch beak riding a bicycle along a coastal path">
+      <svg viewBox="0 0 960 540" role="img" aria-label="A pelican with a pouch beak riding a bicycle along a highway">
         <defs>
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#9fd4ea" />
             <stop offset="42%" stop-color="#c5e6f2" />
-            <stop offset="78%" stop-color="#f7d7b0" />
-            <stop offset="100%" stop-color="#f3c38a" />
+            <stop offset="78%" stop-color="#e9dbc2" />
+            <stop offset="100%" stop-color="#e5c69e" />
           </linearGradient>
-          <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#4fa3be" />
-            <stop offset="55%" stop-color="#2f7f9c" />
-            <stop offset="100%" stop-color="#2a6f86" />
+          <linearGradient id="shoulder" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#b4bf9e" />
+            <stop offset="100%" stop-color="#93a077" />
           </linearGradient>
-          <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ecd7a8" />
-            <stop offset="100%" stop-color="#d9b878" />
+          <linearGradient id="asphalt" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6e767b" />
+            <stop offset="100%" stop-color="#373d41" />
           </linearGradient>
-          <linearGradient id="path" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#c9b089" />
-            <stop offset="100%" stop-color="#b39468" />
+          <linearGradient id="rail" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#dde4e8" />
+            <stop offset="100%" stop-color="#98a4aa" />
           </linearGradient>
+          <filter id="grain-light" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="11" />
+            <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.7 0" />
+          </filter>
+          <filter id="grain-dark" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="2" seed="4" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.7 0" />
+          </filter>
           <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stop-color="#ffe9a8" />
             <stop offset="55%" stop-color="#ffc14a" />
@@ -218,54 +211,129 @@
           </g>
         </g>
 
-        <!-- Headlands -->
-        <path d="M-20 328 C 80 300 140 308 220 328 C 300 300 360 292 455 328 L 455 360 L -20 360 Z" fill="#7aa37a" />
-        <path d="M 520 332 C 620 292 710 286 820 318 C 900 300 960 308 1020 330 L 1020 360 L 520 360 Z" fill="#6f9b78" />
-        <path d="M-20 338 C 90 318 150 322 230 340 C 310 318 360 312 455 340 L 455 360 L -20 360 Z" fill="#8bb388" opacity="0.85" />
+        <!-- Far hills -->
+        <path d="M-20 316 C 120 292 250 298 390 314 C 540 294 700 292 860 312 C 910 306 950 310 980 314 L 980 334 L -20 334 Z" fill="#94a793" opacity="0.9" />
+        <path d="M-20 324 C 180 306 360 316 540 320 C 700 310 860 314 980 322 L 980 336 L -20 336 Z" fill="#a5b39b" opacity="0.7" />
 
-        <!-- Sea -->
-        <rect y="328" width="960" height="88" fill="url(#sea)" />
-        <path class="wave" d="M-40 348 q 40 12 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0" fill="none" stroke="#d7f3ff" stroke-width="2.2" opacity="0.55" />
-        <path class="wave alt" d="M-20 362 q 36 10 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0 t 72 0" fill="none" stroke="#b8e4f4" stroke-width="2" opacity="0.4" />
-        <path d="M-10 392 C 180 378 360 404 520 390 C 700 374 840 398 980 386 L 980 418 L -10 418 Z" fill="#3e8aa3" opacity="0.35" />
+        <!-- City skyline on the horizon -->
+        <g fill="#8496a3" opacity="0.8">
+          <rect x="30" y="266" width="26" height="66" />
+          <rect x="64" y="284" width="18" height="48" />
+          <rect x="120" y="250" width="32" height="82" />
+          <rect x="158" y="272" width="22" height="60" />
+          <rect x="230" y="288" width="26" height="44" />
+          <rect x="600" y="280" width="24" height="52" />
+          <rect x="640" y="258" width="30" height="74" />
+          <rect x="678" y="276" width="20" height="56" />
+          <rect x="760" y="266" width="28" height="66" />
+          <rect x="796" y="288" width="22" height="44" />
+          <rect x="880" y="274" width="26" height="58" />
+        </g>
+        <g fill="#93a5b1" opacity="0.65">
+          <rect x="0" y="296" width="20" height="36" />
+          <rect x="290" y="278" width="24" height="54" />
+          <rect x="322" y="294" width="18" height="38" />
+          <rect x="520" y="288" width="22" height="44" />
+          <rect x="550" y="300" width="16" height="32" />
+          <rect x="840" y="296" width="18" height="36" />
+          <rect x="920" y="290" width="26" height="42" />
+        </g>
+        <g stroke="#8496a3" stroke-width="1.6" opacity="0.7">
+          <line x1="136" y1="250" x2="136" y2="236" />
+          <line x1="652" y1="258" x2="652" y2="242" />
+          <line x1="892" y1="274" x2="892" y2="262" />
+        </g>
 
-        <!-- Beach and path -->
-        <path d="M0 398 C 180 388 340 412 520 402 C 700 390 840 414 960 404 L 960 540 L 0 540 Z" fill="url(#sand)" />
-        <path d="M0 430 C 200 418 380 448 560 434 C 740 420 860 448 960 438 L 960 508 C 760 520 520 498 280 512 C 140 520 40 500 0 508 Z" fill="url(#path)" />
-        <path d="M0 436 C 200 424 380 454 560 440 C 740 426 860 454 960 444" fill="none" stroke="#a88858" stroke-width="3" opacity="0.35" />
+        <!-- Elevated highway viaduct crossing behind the shoulder -->
+        <g opacity="0.75">
+          <rect y="300" width="960" height="7" fill="#bcc7cb" />
+          <rect y="307" width="960" height="3" fill="#aab7bc" />
+          <g fill="#b3c0c4">
+            <rect x="70" y="310" width="6" height="24" />
+            <rect x="210" y="310" width="6" height="24" />
+            <rect x="350" y="310" width="6" height="24" />
+            <rect x="490" y="310" width="6" height="24" />
+            <rect x="630" y="310" width="6" height="24" />
+            <rect x="770" y="310" width="6" height="24" />
+            <rect x="910" y="310" width="6" height="24" />
+          </g>
+        </g>
 
-        <!-- Scrolling ground details -->
+        <!-- Grass shoulder between the viaduct and the road -->
+        <rect y="330" width="960" height="70" fill="url(#shoulder)" />
+
+        <!-- Scrolling far-side furniture: lampposts, sign, guardrail posts (slow layer) -->
+        <g id="back-scroll">
+          <g id="back-strip">
+            <g id="lamp">
+              <rect x="-2" y="152" width="4" height="238" fill="#66727a" />
+              <path d="M0 156 q 0 -20 22 -20 h 30" fill="none" stroke="#66727a" stroke-width="4" />
+              <rect x="46" y="130" width="30" height="9" rx="3.5" fill="#3d454a" />
+            </g>
+            <use href="#lamp" x="320" />
+            <use href="#lamp" x="640" />
+            <g transform="translate(180 0)">
+              <rect x="-8" y="332" width="4" height="56" fill="#79848a" />
+              <rect x="36" y="332" width="4" height="56" fill="#79848a" />
+              <rect x="-16" y="276" width="64" height="60" rx="4" fill="#2f6b52" stroke="#e7edef" stroke-width="2.5" />
+              <rect x="-6" y="290" width="42" height="5" rx="2.5" fill="#dce8e2" opacity="0.85" />
+              <rect x="-6" y="301" width="30" height="5" rx="2.5" fill="#dce8e2" opacity="0.65" />
+            </g>
+            <g fill="#7d8a90">
+              <rect x="40" y="376" width="5" height="22" />
+              <rect x="200" y="376" width="5" height="22" />
+              <rect x="360" y="376" width="5" height="22" />
+              <rect x="520" y="376" width="5" height="22" />
+              <rect x="680" y="376" width="5" height="22" />
+              <rect x="840" y="376" width="5" height="22" />
+            </g>
+          </g>
+          <use href="#back-strip" x="960" />
+        </g>
+
+        <!-- W-beam guardrail along the far shoulder (rail itself is uniform, so it stays static) -->
+        <rect y="382" width="960" height="9" fill="url(#rail)" />
+        <rect y="384.2" width="960" height="1.6" fill="#8e9aa0" opacity="0.85" />
+        <rect y="388.4" width="960" height="1.6" fill="#8e9aa0" opacity="0.85" />
+
+        <!-- Multi-lane asphalt with subtle grain -->
+        <rect y="398" width="960" height="142" fill="url(#asphalt)" />
+        <rect y="398" width="960" height="142" filter="url(#grain-light)" opacity="0.09" />
+        <rect y="398" width="960" height="142" filter="url(#grain-dark)" opacity="0.12" />
+
+        <!-- Solid far edge line and double yellow center -->
+        <rect y="401" width="960" height="2.4" fill="#eceff1" opacity="0.6" />
+        <rect y="407" width="960" height="2.6" fill="#e2b53c" opacity="0.85" />
+        <rect y="412" width="960" height="2.6" fill="#e2b53c" opacity="0.85" />
+
+        <!-- Scrolling lane dashes: far rows move slower for depth -->
+        <g id="mid-scroll" stroke="#f1f4f5">
+          <g id="mid-strip">
+            <line x1="0" y1="424" x2="960" y2="424" stroke-width="3" stroke-dasharray="26 34" opacity="0.75" />
+            <line x1="0" y1="452" x2="960" y2="452" stroke-width="4.5" stroke-dasharray="36 44" opacity="0.85" />
+          </g>
+          <use href="#mid-strip" x="960" />
+        </g>
+
+        <!-- Scrolling near-lane details: 160 px/s, matching the rider -->
         <g id="ground-scroll">
           <g id="ground-strip">
-            <g fill="#9a7a48" opacity="0.55">
-              <ellipse cx="40" cy="478" rx="7" ry="3.2" />
-              <ellipse cx="170" cy="492" rx="5" ry="2.4" />
-              <ellipse cx="260" cy="470" rx="8" ry="3" />
-              <ellipse cx="390" cy="500" rx="6" ry="2.6" />
-              <ellipse cx="510" cy="476" rx="7" ry="3" />
-              <ellipse cx="640" cy="494" rx="5.5" ry="2.4" />
-              <ellipse cx="760" cy="468" rx="8" ry="3.2" />
-              <ellipse cx="880" cy="488" rx="6" ry="2.5" />
+            <line x1="0" y1="494" x2="960" y2="494" stroke="#f4f7f7" stroke-width="7" stroke-dasharray="52 68" opacity="0.9" />
+            <g fill="#22272a" opacity="0.45">
+              <ellipse cx="150" cy="520" rx="72" ry="5" />
+              <ellipse cx="560" cy="530" rx="92" ry="6" />
+              <ellipse cx="830" cy="514" rx="58" ry="4" />
             </g>
-            <g fill="#6d9a62">
-              <path d="M90 500 c 4 -16 10 -16 12 -2 c 6 -14 12 -12 10 2 z" />
-              <path d="M330 512 c 3 -12 8 -12 10 -1 c 5 -11 11 -10 9 2 z" />
-              <path d="M600 506 c 4 -15 11 -14 12 -1 c 6 -13 12 -11 9 2 z" />
-              <path d="M820 514 c 3 -11 8 -11 9 -1 c 5 -10 10 -9 8 2 z" />
-            </g>
-            <g fill="none" stroke="#c9a56a" stroke-width="1.4" opacity="0.7">
-              <path d="M120 488 c 8 6 16 4 22 -2" />
-              <path d="M455 496 c 7 5 14 3 20 -3" />
-              <path d="M705 482 c 8 6 15 4 21 -2" />
-            </g>
-            <g fill="#d9c09a" stroke="#b08958" stroke-width="0.8">
-              <path d="M210 506 c 6 -2 10 2 8 6 c -4 3 -10 2 -12 -2 c 0 -3 2 -4 4 -4 z" />
-              <path d="M545 512 c 5 -2 9 1 7 5 c -3 3 -9 2 -11 -1 c 0 -3 2 -4 4 -4 z" />
-              <path d="M930 500 c 6 -2 10 2 8 6 c -4 3 -10 2 -12 -2 c 0 -3 2 -4 4 -4 z" />
+            <g fill="#596266" opacity="0.5">
+              <ellipse cx="330" cy="510" rx="54" ry="4" />
+              <ellipse cx="730" cy="526" rx="76" ry="5" />
             </g>
           </g>
           <use href="#ground-strip" x="960" />
         </g>
+
+        <!-- Solid near edge line -->
+        <rect y="533" width="960" height="3.4" fill="#eceff1" opacity="0.65" />
 
         <!-- Contact shadow -->
         <ellipse id="shadow" cx="478" cy="498" rx="118" ry="12" fill="#3d2a12" opacity="0.22" />
@@ -443,6 +511,8 @@
       const head = document.getElementById("head");
       const wing = document.getElementById("wing-near");
       const ground = document.getElementById("ground-scroll");
+      const midScroll = document.getElementById("mid-scroll");
+      const backScroll = document.getElementById("back-scroll");
       const shadow = document.getElementById("shadow");
 
       const BB = { x: 10, y: -10 };
@@ -532,8 +602,14 @@
         pouch.setAttribute("transform", "rotate(" + (Math.sin(cadence * 2) * 1.6) + " 90 -148)");
         wing.setAttribute("transform", "rotate(" + (Math.sin(cadence * 2) * 1.8) + " -20 -130)");
 
+        // Near lane scrolls at wheel speed; mid dashes and far-side furniture
+        // move progressively slower so the depth reads correctly.
         const scroll = reduced ? 0 : -((t * 160) % 960);
+        const scrollMid = reduced ? 0 : -((t * 110) % 960);
+        const scrollBack = reduced ? 0 : -((t * 70) % 960);
         ground.setAttribute("transform", "translate(" + scroll + " 0)");
+        midScroll.setAttribute("transform", "translate(" + scrollMid + " 0)");
+        backScroll.setAttribute("transform", "translate(" + scrollBack + " 0)");
 
         const squash = 1 + Math.sin(cadence * 2) * 0.06;
         shadow.setAttribute("rx", String(118 * squash));
