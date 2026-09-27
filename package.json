@@ -1,0 +1,11 @@
+{
+  "name": "tihu-pelican-3d",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "3D 鹈鹕骑自行车海岸公路小游戏（全程序化生成，单文件产物）",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/smoke.mjs"
+  }
+}
