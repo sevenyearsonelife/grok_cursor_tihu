@@ -10,6 +10,25 @@ const SB = new THREE.Vector3(-0.36, 0.86, 0);   // 座管顶
 const ST = new THREE.Vector3(-0.42, 1.02, 0);   // 座垫面
 const HT = new THREE.Vector3(0.5, 1.0, 0);      // 头管上端
 
+function makeGlowTexture() {
+  const S = 32;
+  const data = new Uint8Array(S * S * 4);
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const dx = (x + 0.5) / S * 2 - 1, dy = (y + 0.5) / S * 2 - 1;
+      const v = Math.pow(Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy)), 2.4) * 255;
+      const i = (y * S + x) * 4;
+      data[i] = data[i + 1] = data[i + 2] = v;
+      data[i + 3] = 255;
+    }
+  }
+  const tex = new THREE.DataTexture(data, S, S);
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 function makeWheel() {
   const wheel = new THREE.Group();
   const tire = new THREE.Mesh(
@@ -79,12 +98,49 @@ export class Bicycle {
     bar.rotation.x = Math.PI / 2;
     bar.position.set(0.02, 0.15, 0);
     this.fork.add(bar);
+    // 握把锚点（鹈鹕翅膀 IK 目标）：grips[0] 在 z-，grips[1] 在 z+
+    this.grips = [];
     for (const s of [-1, 1]) {
       const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.028, 0.14, 10), gripMat);
       grip.rotation.x = Math.PI / 2;
       grip.position.set(0.02, 0.15, 0.18 * s);
       this.fork.add(grip);
+      const anchor = new THREE.Object3D();
+      anchor.position.set(0.02, 0.15, 0.18 * s);
+      this.fork.add(anchor);
+      this.grips.push(anchor);
     }
+
+    // 车头灯（夜间点亮：灯面自发光 + 光晕 + 前向聚光）与尾灯
+    const lampBody = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.07, 12), darkMat);
+    lampBody.rotation.z = Math.PI / 2;
+    lampBody.position.set(0.09, 0.09, 0);
+    this.fork.add(lampBody);
+    this.headMat = new THREE.MeshStandardMaterial({
+      color: 0xfff8e8, emissive: new THREE.Color(0xfff1c8), emissiveIntensity: 0, roughness: 0.2,
+    });
+    const lampLens = new THREE.Mesh(new THREE.CircleGeometry(0.03, 14), this.headMat);
+    lampLens.rotation.y = Math.PI / 2;
+    lampLens.position.set(0.126, 0.09, 0);
+    this.fork.add(lampLens);
+    this.headGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlowTexture(), color: 0xfff0cc, blending: THREE.AdditiveBlending,
+      transparent: true, depthWrite: false, opacity: 0,
+    }));
+    this.headGlow.scale.set(0.5, 0.5, 1);
+    this.headGlow.position.set(0.14, 0.09, 0);
+    this.fork.add(this.headGlow);
+    this.headLight = new THREE.SpotLight(0xfff0d0, 0, 22, 0.42, 0.55, 1.4);
+    this.headLight.position.set(0.13, 0.09, 0);
+    this.headLight.target.position.set(4, -0.9, 0);
+    this.fork.add(this.headLight, this.headLight.target);
+    this.tailMat = new THREE.MeshStandardMaterial({
+      color: 0x8a1010, emissive: new THREE.Color(0xff2a1a), emissiveIntensity: 0.1, roughness: 0.3,
+    });
+    const tailLamp = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.06), this.tailMat);
+    tailLamp.position.set(-0.43, 0.76, 0);
+    this.group.add(tailLamp);
+    this.night = 0;
 
     // 车铃（金色小铃铛，响的时候晃动）
     this.bellMesh = new THREE.Mesh(
@@ -156,6 +212,16 @@ export class Bicycle {
 
   ring() {
     this.bellT = 1;
+  }
+
+  // 夜晚系数 0~1：车灯随天色亮起
+  setNight(n) {
+    const on = Math.min(1, Math.max(0, (n - 0.25) / 0.45));
+    this.night = on;
+    this.headMat.emissiveIntensity = on * 4;
+    this.headGlow.material.opacity = on * 0.9;
+    this.headLight.intensity = on * 30;
+    this.tailMat.emissiveIntensity = 0.1 + on * 3;
   }
 
   // steerTarget ∈ [-1,1]（变道时给一点转向），speed 单位 m/s

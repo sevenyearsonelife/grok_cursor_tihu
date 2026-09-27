@@ -60,11 +60,12 @@ export class Game {
     this.rig.add(this.pelican.group);
 
     this.fish = new FishManager(scene);
-    this.camCtrl = new CameraController(camera);
+    this.camCtrl = new CameraController(camera, scene);
 
     this._mouth = new THREE.Vector3();
     this._footL = new THREE.Vector3();
     this._footR = new THREE.Vector3();
+    this._grips = [new THREE.Vector3(), new THREE.Vector3()];
     this._rigPos = new THREE.Vector3();
     this._raycaster = new THREE.Raycaster();
     this._ndc = new THREE.Vector2();
@@ -228,9 +229,12 @@ export class Game {
 
     // ---- 自行车 & 鹈鹕 ----
     this.bike.update(dt, this.speed, steer);
+    this.bike.setNight(this.sky.night);
     this.rig.updateMatrixWorld(true);
-    this.bike.pedalL.getWorldPosition(this._footL);
-    this.bike.pedalR.getWorldPosition(this._footR);
+    // 脚踏 / 握把位置换算到 rig 局部空间（鹈鹕 IK 在 rig 空间求解）
+    this.rig.worldToLocal(this.bike.pedalL.getWorldPosition(this._footL));
+    this.rig.worldToLocal(this.bike.pedalR.getWorldPosition(this._footR));
+    for (let i = 0; i < 2; i++) this.rig.worldToLocal(this.bike.grips[i].getWorldPosition(this._grips[i]));
     this.pelican.getMouthWorld(this._mouth);
 
     // 鹈鹕张嘴逻辑：附近有瞄准它的鱼 / 正在嚼 / 被戳
@@ -248,6 +252,9 @@ export class Game {
       pedalPhase: this.bike.crank.rotation.z,
       footL: this._footL,
       footR: this._footR,
+      grips: this._grips,
+      steer,
+      lookAt: this._lookFish(),
     };
     this.pelican.update(ctx);
 
@@ -271,6 +278,7 @@ export class Game {
       rigPos: this._rigPos,
       mouth: this._mouth,
       speedNorm: this.speed / MAX_SPEED,
+      speed: this.speed,
     });
 
     // ---- 风声 / HUD ----
@@ -308,6 +316,14 @@ export class Game {
       if (Math.random() < 0.5) this._jump();
       else { this.audio.bell(); this.bike.ring(); }
     }
+  }
+
+  // 鹈鹕目光追踪：正飞向它的鱼（世界坐标），没有则 null
+  _lookFish() {
+    for (const f of this.fish.pool) {
+      if (f.state === 'air' && f.aimed) return f.mesh.position;
+    }
+    return null;
   }
 
   _nearestLane(z) {
