@@ -54664,7 +54664,7 @@ const THREE = __req("vendor/three.module.js");
 const { clamp, rand } = __req("src/utils.js");
 const { Bicycle } = __req("src/bicycle.js");
 const { Pelican } = __req("src/pelican.js");
-const { FishManager } = __req("src/fish.js");
+const { FishManager, Particles } = __req("src/fish.js");
 const { Sky } = __req("src/sky.js");
 const { Road } = __req("src/road.js");
 const { Ocean } = __req("src/ocean.js");
@@ -54720,6 +54720,7 @@ class Game {
     this.rig.add(this.pelican.group);
 
     this.fish = new FishManager(scene);
+    this.dust = new Particles(scene, 60, 0xd8c7a0, 0.12);
     this.camCtrl = new CameraController(camera, scene);
 
     this._mouth = new THREE.Vector3();
@@ -54842,7 +54843,7 @@ class Game {
         this.y = 0;
         this.vy = 0;
         this.airborne = false;
-        this.fish.splash.burst(this._rigPos, 10, 1.2, 1.5); // 落地尘土
+        this.dust.burst(this._rigPos, 18, 1.6, 1.8); // 落地尘土
       }
     }
 
@@ -54919,6 +54920,7 @@ class Game {
     this.pelican.update(ctx);
 
     // ---- 抓鱼 ----
+    this.dust.update(dt);
     this.fish.update({
       dt,
       time: this.time,

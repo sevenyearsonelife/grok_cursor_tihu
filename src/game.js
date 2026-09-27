@@ -4,7 +4,7 @@ import * as THREE from '../vendor/three.module.js';
 import { clamp, rand } from './utils.js';
 import { Bicycle } from './bicycle.js';
 import { Pelican } from './pelican.js';
-import { FishManager } from './fish.js';
+import { FishManager, Particles } from './fish.js';
 import { Sky } from './sky.js';
 import { Road } from './road.js';
 import { Ocean } from './ocean.js';
@@ -60,6 +60,7 @@ export class Game {
     this.rig.add(this.pelican.group);
 
     this.fish = new FishManager(scene);
+    this.dust = new Particles(scene, 60, 0xd8c7a0, 0.12);
     this.camCtrl = new CameraController(camera, scene);
 
     this._mouth = new THREE.Vector3();
@@ -182,7 +183,7 @@ export class Game {
         this.y = 0;
         this.vy = 0;
         this.airborne = false;
-        this.fish.splash.burst(this._rigPos, 10, 1.2, 1.5); // 落地尘土
+        this.dust.burst(this._rigPos, 18, 1.6, 1.8); // 落地尘土
       }
     }
 
@@ -259,6 +260,7 @@ export class Game {
     this.pelican.update(ctx);
 
     // ---- 抓鱼 ----
+    this.dust.update(dt);
     this.fish.update({
       dt,
       time: this.time,
