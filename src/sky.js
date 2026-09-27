@@ -11,9 +11,9 @@ const KF = [
   { t: 0.12, top: 0x1e2a5e, hor: 0xe07a56, fog: 0x9a6058, sun: 0xffb08a, sunI: 1.2, hemiI: 0.35, ambI: 0.32, night: 0.55 },
   { t: 0.28, top: 0x05081c, hor: 0x0e1630, fog: 0x0a1024, sun: 0xa8bcf0, sunI: 0.7, hemiI: 0.22, ambI: 0.2,  night: 1 },
   { t: 0.5,  top: 0x060a20, hor: 0x121a36, fog: 0x0c1226, sun: 0xa8bcf0, sunI: 0.7, hemiI: 0.22, ambI: 0.2,  night: 1 },
-  { t: 0.62, top: 0x2e3f80, hor: 0xffa87e, fog: 0xc78f80, sun: 0xffcf9e, sunI: 1.8, hemiI: 0.4,  ambI: 0.35, night: 0.35 },
-  { t: 0.75, top: 0x3f83cc, hor: 0xa8d4f2, fog: 0xb8d4ea, sun: 0xfff0d6, sunI: 2.8, hemiI: 0.6,  ambI: 0.5,  night: 0 },
-  { t: 0.9,  top: 0x3a78c0, hor: 0xa0cce8, fog: 0xb0cce4, sun: 0xffeccf, sunI: 2.5, hemiI: 0.55, ambI: 0.48, night: 0.02 },
+  { t: 0.62, top: 0x2e3f80, hor: 0xffa87e, fog: 0xc78f80, sun: 0xffc88e, sunI: 1.9, hemiI: 0.5,  ambI: 0.4,  night: 0.35 },
+  { t: 0.75, top: 0x3f83cc, hor: 0xa8d4f2, fog: 0xb8d4ea, sun: 0xffe3b8, sunI: 2.7, hemiI: 0.72, ambI: 0.55, night: 0 },
+  { t: 0.9,  top: 0x3a78c0, hor: 0xa0cce8, fog: 0xb0cce4, sun: 0xffd9ae, sunI: 2.4, hemiI: 0.66, ambI: 0.52, night: 0.02 },
   // t=1.0 回到黄昏，保证循环无缝
   { t: 1.0,  top: 0x35427e, hor: 0xff9a5e, fog: 0xd98a70, sun: 0xffc49a, sunI: 2.4, hemiI: 0.5,  ambI: 0.45, night: 0.18 },
 ];
@@ -55,7 +55,11 @@ export class Sky {
           varying vec3 vPos;
           void main() {
             float h = clamp(normalize(vPos).y, 0.0, 1.0);
-            gl_FragColor = vec4(mix(horColor, topColor, pow(h, 0.55)), 1.0);
+            // 三段式渐变：地平线 → 过渡色 → 天顶，smoothstep 让过渡更柔
+            vec3 mid = mix(horColor, topColor, 0.45);
+            vec3 col = mix(horColor, mid, smoothstep(0.0, 0.34, h));
+            col = mix(col, topColor, smoothstep(0.26, 0.88, h));
+            gl_FragColor = vec4(col, 1.0);
           }`,
       })
     );
@@ -118,7 +122,8 @@ export class Sky {
     sc.near = 1;
     sc.far = 160;
     this.dirLight.shadow.bias = -0.0006;
-    this.dirLight.shadow.normalBias = 0.02;
+    this.dirLight.shadow.normalBias = 0.03;
+    this.dirLight.shadow.radius = 4; // PCF 下进一步柔化边缘
     scene.add(this.dirLight);
     scene.add(this.dirLight.target);
 
@@ -128,7 +133,8 @@ export class Sky {
     scene.add(this.amb);
 
     this._camera = camera;
-    this._fog = new THREE.Fog(0xd98a70, 60, 330);
+    // 距离雾：起点拉远（近处几乎透明），远处柔化融入天色
+    this._fog = new THREE.Fog(0xd98a70, 45, 290);
     scene.fog = this._fog;
   }
 

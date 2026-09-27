@@ -44,7 +44,7 @@ export class Bicycle {
     this.steerTarget = 0;
     this.bellT = 0;
 
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0xd93a30, roughness: 0.35, metalness: 0.5 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0xd93a30, roughness: 0.3, metalness: 0.6 });
     const darkMat = new THREE.MeshStandardMaterial({ color: 0x24262e, roughness: 0.6, metalness: 0.4 });
     const chromeMat = new THREE.MeshStandardMaterial({ color: 0xcfd4da, roughness: 0.25, metalness: 0.85 });
     const brownMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9 });
@@ -73,16 +73,16 @@ export class Bicycle {
     this.frontWheel.position.set(FW.x - HT.x, FW.y - HT.y, 0);
     this.fork.add(this.frontWheel);
 
-    // 车把：立管 + 横把 + 握把
-    this.fork.add(tube(V(0, 0, 0), V(0.02, 0.12, 0), 0.024, chromeMat));
-    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.46, 8), chromeMat);
+    // 车把：立管 + 横把 + 握把（微后掠，握把加长好握）
+    this.fork.add(tube(V(0, 0, 0), V(0.02, 0.13, 0), 0.024, chromeMat));
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.48, 10), chromeMat);
     bar.rotation.x = Math.PI / 2;
-    bar.position.set(0.02, 0.14, 0);
+    bar.position.set(0.02, 0.15, 0);
     this.fork.add(bar);
     for (const s of [-1, 1]) {
-      const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.11, 8), gripMat);
+      const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.028, 0.14, 10), gripMat);
       grip.rotation.x = Math.PI / 2;
-      grip.position.set(0.02, 0.14, 0.185 * s);
+      grip.position.set(0.02, 0.15, 0.18 * s);
       this.fork.add(grip);
     }
 
@@ -107,20 +107,27 @@ export class Bicycle {
     this.rearWheel.position.copy(RW);
     g.add(this.rearWheel);
 
-    // ---- 座垫 ----
-    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.055, 0.13), seatMat);
-    seat.position.set(ST.x, ST.y + 0.02, 0);
+    // ---- 座垫（加宽加厚，与鹈鹕体型匹配；前端收窄的座鼻）----
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.15), seatMat);
+    seat.position.set(ST.x, ST.y + 0.025, 0);
     seat.rotation.z = 0.08;
     seat.castShadow = true;
     g.add(seat);
+    const seatNose = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.04, 0.09), seatMat);
+    seatNose.position.set(ST.x + 0.17, ST.y + 0.02, 0);
+    seatNose.rotation.z = 0.12;
+    g.add(seatNose);
 
-    // ---- 链条 + 链轮 ----
+    // ---- 链条 + 链轮（细圆环示意）----
     const chainMat = new THREE.MeshStandardMaterial({ color: 0x33363e, roughness: 0.5, metalness: 0.7 });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.014, 8, 20), chainMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.011, 8, 22), chainMat);
     ring.position.copy(BB);
     g.add(ring);
-    g.add(tube(V(BB.x, BB.y + 0.105, 0.04), V(RW.x, RW.y + 0.035, 0.035), 0.008, chainMat));
-    g.add(tube(V(BB.x, BB.y - 0.105, 0.04), V(RW.x, RW.y - 0.035, 0.035), 0.008, chainMat));
+    const cog = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.009, 8, 14), chainMat);
+    cog.position.set(RW.x, RW.y, 0.035);
+    g.add(cog);
+    g.add(tube(V(BB.x, BB.y + 0.105, 0.04), V(RW.x, RW.y + 0.04, 0.035), 0.006, chainMat));
+    g.add(tube(V(BB.x, BB.y - 0.105, 0.04), V(RW.x, RW.y - 0.04, 0.035), 0.006, chainMat));
 
     // ---- 曲柄 + 脚踏 ----
     this.crank = new THREE.Group();
@@ -139,7 +146,7 @@ export class Bicycle {
     this.pedalL.position.set(0, 0.17, 0.16);
     this.pedalR = new THREE.Object3D();
     this.pedalR.position.set(0, -0.17, -0.16);
-    const pedalGeo = new THREE.BoxGeometry(0.13, 0.025, 0.08);
+    const pedalGeo = new THREE.BoxGeometry(0.14, 0.028, 0.09);
     const pedalLm = new THREE.Mesh(pedalGeo, darkMat);
     this.pedalL.add(pedalLm);
     const pedalRm = new THREE.Mesh(pedalGeo, darkMat);

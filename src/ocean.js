@@ -4,18 +4,21 @@ import * as THREE from '../vendor/three.module.js';
 const SHORE_Z = 15.5;     // 海岸线（世界坐标，沙滩在路侧 6.7 ~ 15.5）
 const OCEAN_DEPTH = 190;  // 海面纵深
 
-// 海面与泡沫共用的同一套波函数，保证泡沫始终贴着浪走
+// 海面与泡沫共用的同一套波函数，保证泡沫始终贴着浪走。
+// 第二层：较高频的小碎波叠加在大涌浪上（幅度刻意压小，保持克制）。
 function waveY(x, z, t) {
   return (
     0.48 * Math.sin(0.13 * x + t * 1.4) +
     0.33 * Math.sin(0.075 * z - t * 1.05) +
-    0.18 * Math.sin(0.31 * (x + z * 0.6) + t * 2.1)
+    0.18 * Math.sin(0.31 * (x + z * 0.6) + t * 2.1) +
+    0.06 * Math.sin(0.52 * x - t * 2.6) +
+    0.05 * Math.sin(0.61 * (z * 0.8 - x * 0.3) + t * 2.2)
   );
 }
 
 export class Ocean {
   constructor(scene) {
-    const geo = new THREE.PlaneGeometry(420, OCEAN_DEPTH, 84, 36);
+    const geo = new THREE.PlaneGeometry(420, OCEAN_DEPTH, 110, 44); // 分段加密以承载第二层小波
     geo.rotateX(-Math.PI / 2); // 顶点直接落在 XZ 平面，方便动 y
     this.base = geo.attributes.position.array.slice(); // 保存原始 x/z
     this.geo = geo;

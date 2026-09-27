@@ -54,7 +54,10 @@ export class Road {
     this.roadTex = makeRoadTexture();
     const roadGeo = new THREE.PlaneGeometry(ROAD_LEN, ROAD_W);
     roadGeo.rotateX(-Math.PI / 2);
-    this.road = new THREE.Mesh(roadGeo, new THREE.MeshStandardMaterial({ map: this.roadTex, roughness: 0.95 }));
+    // 粗糙度略降 + 一点金属度：阳光掠射时路面上有一层极 subtle 的镜面反光
+    this.road = new THREE.Mesh(roadGeo, new THREE.MeshStandardMaterial({
+      map: this.roadTex, roughness: 0.62, metalness: 0.08,
+    }));
     this.road.position.y = 0.01;
     this.road.receiveShadow = true;
     this.group.add(this.road);
