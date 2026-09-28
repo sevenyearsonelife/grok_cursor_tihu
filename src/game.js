@@ -83,6 +83,11 @@ export class Game {
 
     // ---- 输入 ----
     input.onAction = (name) => this._action(name);
+    this._autoAccel = false;
+    this._humanAccel = false;
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') this._humanAccel = true;
+    });
   }
 
   start() {
@@ -150,7 +155,12 @@ export class Game {
     if (inp.humanActivity) {
       inp.humanActivity = false;
       this.idleT = 0;
-      if (this.demo) this.demo = false;
+      if (this.demo) {
+        this.demo = false;
+        // 交还控制：松开自动驾驶踩下的油门（除非接管动作本身就是按加速键）
+        if (this._autoAccel && !this._humanAccel) inp.hold.accel = false;
+        this._autoAccel = false;
+      }
     } else {
       this.idleT += dt;
       if (this.idleT > IDLE_DEMO && !this.demo) {
@@ -159,11 +169,13 @@ export class Game {
       }
     }
 
-    // ---- 控制输入（真人 or 自动驾驶）----
+    this._humanAccel = false;
+
+    // ---- 控制输入（真人 or 自动驾驶；自动驾驶先写入 hold，再统一读取）----
+    if (this.demo) this._autopilot(dt);
     let accel = inp.hold.accel;
     let brake = inp.hold.brake;
     let trick = inp.hold.trick;
-    if (this.demo) this._autopilot(dt);
 
     // ---- 速度物理 ----
     const drag = 0.35 + this.speed * 0.14;
@@ -298,6 +310,11 @@ export class Game {
   _autopilot(dt) {
     this.demoT += dt;
     this.demoLaneT -= dt;
+    // 定速巡航：8 m/s 以下踩油门、9.5 m/s 以上松开（约 29~34 km/h 之间往复）
+    const hold = this.input.hold;
+    if (this.speed < 8) hold.accel = true;
+    else if (this.speed > 9.5) hold.accel = false;
+    this._autoAccel = hold.accel;
     // 朝瞄准鱼的落点车道靠
     let targetLane = this.lane;
     for (const f of this.fish.pool) {
